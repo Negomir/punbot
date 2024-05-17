@@ -1,0 +1,12 @@
+{
+  "name": "punbot",
+  "version": "1.0.0",
+  "description": "Simple Discord bot used to pester people with puns in DMs.",
+  "main": "index.js",
+  "author": "Negomir",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.15.2",
+    "got": "11.8.2"
+  }
+}
