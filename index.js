@@ -22,7 +22,7 @@ discord.on("messageCreate", message => {
 				accept: "text/plain",
 			},
 		}).then(response => {
-			message.author.send(response.body);
+			message.channel.send(response.body);
 		}).catch(console.error);
 	}
 });
