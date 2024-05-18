@@ -14,15 +14,27 @@ const discord = new Client({
 
 discord.login(discordToken);
 
-discord.on("messageCreate", message => {
-	if (!message?.author.bot) {
-		//message.author.send("test message");
-		got.get("https://icanhazdadjoke.com/", {
-			headers: {
-				accept: "text/plain",
-			},
-		}).then(response => {
-			message.channel.send(response.body);
-		}).catch(console.error);
+var purgatoryIntervals = {};
+
+discord.on("guildMemberUpdate", (before, after) => {
+	const hadRole = before.roles.cache.some(role => role.name == "Pun Hell");
+	const hasRole = after.roles.cache.some(role => role.name == "Pun Hell");
+
+	if (!hadRole && hasRole) {
+		console.log(`user ${after.id} has gained the role`);
+		purgatoryIntervals[before.id] = setInterval(() => {
+			got.get("https://icanhazdadjoke.com/", {
+				headers: {
+					accept: "text/plain",
+				},
+			}).then(response => {
+				after.send(response.body);
+			}).catch(console.error);
+		}, 5000);
+	} else if (hadRole && !hasRole) {
+		console.log(`user ${after.id} has lost the role`);
+		if (before.id in purgatoryIntervals) {
+			clearInterval(purgatoryIntervals[before.id]);
+		}
 	}
 });
