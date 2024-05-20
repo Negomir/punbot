@@ -35,7 +35,7 @@ const setIntervalForUser = (user) => {
 		}).catch(console.error);
 	}, 1000 * 60 * 5);
 
-	console.log(`set interval for ${user.id}`);
+	console.log(`set interval for ${user.displayName}`);
 };
 
 discord.once(Events.ClientReady, () => {
