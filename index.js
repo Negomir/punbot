@@ -28,7 +28,10 @@ const setIntervalForUser = (user) => {
 		}).then(response => {
 			user.send(response.body)
 				.then(console.log(`sent pun to ${user.displayName}`))
-				.catch(console.error);
+				.catch(err => {
+					console.log(`failed sending put to ${user.displayName}`);
+					console.error(err);
+				});
 		}).catch(console.error);
 	}, 1000 * 60 * 5);
 
