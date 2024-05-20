@@ -26,7 +26,9 @@ const setIntervalForUser = (user) => {
 				accept: "text/plain",
 			},
 		}).then(response => {
-			user.send(response.body);
+			user.send(response.body)
+				.then(console.log(`sent pun to ${user.displayName}`))
+				.catch(console.error);
 		}).catch(console.error);
 	}, 1000 * 60 * 5);
 
