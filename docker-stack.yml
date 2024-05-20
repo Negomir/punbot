@@ -1,0 +1,9 @@
+version: '3.9'
+services:
+  punbot:
+    image: 127.0.0.1:5000/punbot
+    restart: always
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+    deploy:
+      replicas: 1

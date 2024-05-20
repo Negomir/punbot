@@ -1,5 +1,5 @@
 const got = require("got");
-const { Client, GatewayIntentBits } = require("discord.js");
+const { Client, GatewayIntentBits, Events } = require("discord.js");
 
 const discordToken = process.env.DISCORD_TOKEN;
 
@@ -9,32 +9,50 @@ const discord = new Client({
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.GuildMembers,
 		GatewayIntentBits.DirectMessages,
+		GatewayIntentBits.GuildPresences,
 	],
 });
 
-discord.login(discordToken);
-
 var purgatoryIntervals = {};
 
-discord.on("guildMemberUpdate", (before, after) => {
+const setIntervalForUser = (user) => {
+	if (user.id in purgatoryIntervals) {
+		return;
+	}
+
+	purgatoryIntervals[user.id] = setInterval(() => {
+		got.get("https://icanhazdadjoke.com/", {
+			headers: {
+				accept: "text/plain",
+			},
+		}).then(response => {
+			user.send(response.body);
+		}).catch(console.error);
+	}, 1000 * 60 * 5);
+
+	console.log(`set interval for ${user.id}`);
+};
+
+discord.once(Events.ClientReady, () => {
+	activeGuilds = discord.guilds.cache.each(guild => {
+		const role = guild.roles.cache.find(role => role.name == "Pun Hell");
+		role.members.each(setIntervalForUser);
+	});
+});
+
+discord.on(Events.GuildMemberUpdate, (before, after) => {
 	const hadRole = before.roles.cache.some(role => role.name == "Pun Hell");
 	const hasRole = after.roles.cache.some(role => role.name == "Pun Hell");
 
 	if (!hadRole && hasRole) {
 		console.log(`user ${after.id} has gained the role`);
-		purgatoryIntervals[before.id] = setInterval(() => {
-			got.get("https://icanhazdadjoke.com/", {
-				headers: {
-					accept: "text/plain",
-				},
-			}).then(response => {
-				after.send(response.body);
-			}).catch(console.error);
-		}, 5000);
+		setIntervalForUser(after);
 	} else if (hadRole && !hasRole) {
 		console.log(`user ${after.id} has lost the role`);
-		if (before.id in purgatoryIntervals) {
-			clearInterval(purgatoryIntervals[before.id]);
+		if (after.id in purgatoryIntervals) {
+			clearInterval(purgatoryIntervals[after.id]);
 		}
 	}
 });
+
+discord.login(discordToken);
